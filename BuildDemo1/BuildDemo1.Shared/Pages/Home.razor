@@ -1,0 +1,56 @@
+﻿@page "/"
+@using BuildDemo1.Shared.Services
+@inject IFormFactor FormFactor
+@inject IPhoto PhotoTaker
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+
+@{#if ANDROID || IOS || WINDOWS }
+        <table>
+            <tr>
+                <td colspan="3" >                   
+                    <img src="@srcImage" width="250" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @{#if ANDROID || IOS }
+                    <button class="btn btn-secondary" @onclick="@TakePhoto">Take Pic</button>
+                    @{#endif}
+                </td>
+                <td><button class="btn btn-secondary" @onclick="@PickPhoto">Choose Pic</button></td>
+            </tr>
+        </table>  
+@{#endif}
+
+
+@code {
+    private string factor => FormFactor.GetFormFactor();
+    private string platform => FormFactor.GetPlatform();
+    private string srcImage = "";
+
+    protected override void OnInitialized()
+    {
+        PhotoTaker.PropertyChanged += (sender, e) =>
+        {           
+            if (e.PropertyName == nameof(PhotoTaker.SourceImage))
+            {
+                srcImage = PhotoTaker.SourceImage;
+                StateHasChanged(); 
+            }           
+        };
+    }
+    private void TakePhoto()
+    {       
+        PhotoTaker.TakePhoto();
+    }
+
+    private void PickPhoto()
+    {
+        PhotoTaker.PickPhoto();
+    }   
+}
